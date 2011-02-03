@@ -745,10 +745,12 @@ try {
 
     <?php if ($readOnly !== true): ?>
       <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
-        <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
+        <?php if (isset($document)): ?>
+          <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
 
-        <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
-          <input type="hidden" name="custom_id" value="1" />
+          <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
+            <input type="hidden" name="custom_id" value="1" />
+          <?php endif; ?>
         <?php endif; ?>
 
         <?php foreach ($_REQUEST as $k => $v): ?>
@@ -790,6 +792,12 @@ try {
         <textarea name="value"><?php echo var_export($prepared, true) ?></textarea>
         <input type="submit" name="save" value="Save" class="save_button" />
       </form>
+    <?php endif; ?>
+    <br/>
+    <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId && $readOnly !== true): ?>
+      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
+    <?php elseif ($readOnly !== true): ?>
+      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
     <?php endif; ?>
 
     <?php endif; ?>
