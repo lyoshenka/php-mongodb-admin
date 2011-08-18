@@ -252,8 +252,9 @@ function renderDocumentAsJson($document, $depth = 0, $indent = '    ')
   $rendered .= ($documentIsHash) ? '{ ' : '[ ';
 
   if (!empty($chunks)) {
-    if (count($chunks) == 1) {
-      $rendered .= $chunks[0] . ' ';
+    // collapse simple things into a single line
+    if (count($chunks) == 1 && strpos(reset($chunks), '[') === false && strpos(reset($chunks), '{') === false) {
+      $rendered .= reset($chunks) . ' ';
     } else {
       $rendered .= "\n" . str_repeat($indent, $depth + 1) . implode(",\n" . str_repeat($indent, $depth + 1), $chunks) . "\n" . str_repeat($indent, $depth);
     }
