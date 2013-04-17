@@ -404,10 +404,10 @@ AAAAAAAAAAAAAA==" type="image/x-icon" />
             <?php endforeach; ?>
           </select>
         <?php else: ?>
-          <?php echo $server[0] ?>
+          <?php echo preg_replace('/\/\/(.*):(.*)@/', '//$1:*****@', $server[0]); ?>
         <?php endif; ?>
       <?php else: ?>
-        <?php echo $server ?>
+        <?php echo preg_replace('/\/\/(.*):(.*)@/', '//$1:*****@', $server); ?>
       <?php endif; ?>
     </h1>
     <?php if (isset($_REQUEST['error'])): ?>
