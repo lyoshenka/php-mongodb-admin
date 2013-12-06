@@ -72,10 +72,7 @@ function renderDocumentPreview($mongo, $document)
 {
   $document = prepareMongoDBDocumentForEdit($document);
   $preview = linkDocumentReferences($mongo, $document);
-  $preview = secureOutput($preview);
-  $preview = print_r($preview, true);
-  
-  return $preview;
+  return renderDocumentAsJson(secureOutput($preview));
 }
 
 /**
@@ -244,6 +241,60 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
   }
 
   return $document;
+}
+
+/**
+ * Render a MongoDB document as Mongo-style JSON. Escape everything for output.
+ *
+ * @param array $document
+ * @param int $depth
+ * @param string $indent
+ * @return string $rendered
+ */
+function renderDocumentAsJson($document, $depth = 0, $indent = '    ')
+{
+  $rendered = '';
+  if (!is_array($document)) {
+    // special treatment for MongoDate objects
+    if ($document instanceof MongoDate) {
+      return '"' . date('D M d Y H:i:s \G\M\TO (T)', $document->sec) . '"';
+    }
+    return htmlentities(json_encode($document));
+  }
+  $chunks = array();
+
+  // special treatment for linked db refs
+  if (is_array($document) && isset($document['$ref'])) {
+    foreach ($document as $key => $val) {
+      $chunks[$key] = '"' . $val . '"';
+    }
+  } else {
+    foreach ($document as $key => $val) {
+      $chunks[$key] = renderDocumentAsJson($val, $depth + 1);
+    }
+  }
+
+  $documentIsHash = (array_diff_key($chunks, array_keys(array_keys($chunks))));
+
+  if ($documentIsHash) {
+    foreach ($chunks as $key => $val) {
+      $chunks[$key] = (preg_match('/\W/', $key) ? json_encode($key) : $key) . ' : ' . $val;
+    }
+  }
+
+  $rendered .= ($documentIsHash) ? '{ ' : '[ ';
+
+  if (!empty($chunks)) {
+    // collapse simple things into a single line
+    if (count($chunks) == 1 && strpos(reset($chunks), '[') === false && strpos(reset($chunks), '{') === false) {
+      $rendered .= reset($chunks) . ' ';
+    } else {
+      $rendered .= "\n" . str_repeat($indent, $depth + 1) . implode(",\n" . str_repeat($indent, $depth + 1), $chunks) . "\n" . str_repeat($indent, $depth);
+    }
+  }
+
+  $rendered .= ($documentIsHash) ? '}' : ']';
+  return $rendered;
 }
 
 // Actions
