@@ -439,6 +439,11 @@ K0Jb/y9FXv8vRV7/L0Ve/y9FXv8vRV7/OlBl/zRJYf8vRV7/L0Ve/y9FXv8vRV7/L0Ve/y9FXv8v
 RV7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAA==" type="image/x-icon" />
 	<LINK href="mongo.css" rel="stylesheet" type="text/css">
+  <script src="ready.min.js"></script>
+  <link rel="stylesheet" href="http://yandex.st/highlightjs/7.5/styles/default.min.css">
+  <script src="http://yandex.st/highlightjs/7.5/highlight.min.js"></script>
+<!--  <link rel="stylesheet" href="styles/github.css">
+  <script src="highlight.pack.js"></script> -->
     
   </head>
 
@@ -695,7 +700,7 @@ AAAAAAAAAAAAAA==" type="image/x-icon" />
     </h2>
     <?php $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']); ?>
 
-    <pre><code><?php echo renderDocumentPreview($mongo, $document) ?></code></pre>
+    <pre><code id="docContent"><?php echo renderDocumentPreview($mongo, $document) ?></code></pre>
 
     <?php $prepared = prepareMongoDBDocumentForEdit($document) ?>
 
@@ -724,5 +729,10 @@ AAAAAAAAAAAAAA==" type="image/x-icon" />
 
       <p id="footer"><span class="footer">Created by <a href="http://www.twitter.com/jwage" target="_BLANK">Jonathan H. Wage</a> | Theme by Ted Veatch</span></p>
     </div>
+    <script>
+      $.domReady(function () {
+        console.log(hljs.highlight('json', document.getElementById("docContent").innerHtml));
+      });
+    </script>
   </body>
 </html>
